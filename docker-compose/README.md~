@@ -1,7 +1,4 @@
-# Useful Infrastructure Docker Commands
-
-
-## Starting service stack
+# Useful Infrastructure Commands
 
 First things first. To start (and shutdown) the service stack, use these commands.
 
@@ -15,12 +12,13 @@ After starting up, you can check if all instances are running correctly using `d
 There should be a container broker and zookeeper running.
 
 
-## Creating kafka topics
-
-It’s good practice to explicitly create them before using them, even if Kafka is configured to automagically create them when referenced. Run this command to create a new topic
+It’s good practice to explicitly create them before using them, even if Kafka is configured to automagically create them when referenced.
+Run this command to create a new topic
 
 ```
-docker exec -it broker bash
-kafka-topics --bootstrap-server broker:9092 --create --topic <name-of-topic>
+docker exec broker \
+kafka-topics --bootstrap-server broker:9092 \
+             --create \
+             --topic <name-of-topic>
 ```
 
