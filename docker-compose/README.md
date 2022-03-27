@@ -1,4 +1,4 @@
-# Useful Infrastructure Docker Commands
+# Useful Infrastructure Commands
 
 
 ## Starting service stack
@@ -24,3 +24,8 @@ docker exec -it broker bash
 kafka-topics --bootstrap-server broker:9092 --create --topic <name-of-topic>
 ```
 
+## Using Mongo Express
+
+To manage MongoDB, we use Mongo Express, web-based MongoDB admin interface. 
+Once your docker-compose service stack is up and running, you can use Mongo Express' UI.
+Go to the browser of your choice and enter `http://localhost:8081/`. Et voila, there is your admin UI.

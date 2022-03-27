@@ -12,8 +12,6 @@ services:
     image: confluentinc/cp-kafka:7.0.1
     container_name: broker
     ports:
-    # To learn about configuring Kafka for access across networks see
-    # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
       - "9092:9092"
     depends_on:
       - zookeeper
@@ -24,4 +22,28 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR:
+
+  mongo:
+    image: mongo
+    container_name: mongo_db
+    restart: always
+    environment:
+      # @TODO: Move this to env variables / secrets
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  mongo-express:
+    # Web-based MongoDB admin interface written with Node.js, Express and Bootstrap3
+    # https://github.com/mongo-express/mongo-express
+    image: mongo-express
+    container_name: mongo_express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      # @TODO: Move this to env variables / secrets
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+
