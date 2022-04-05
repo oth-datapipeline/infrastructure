@@ -46,7 +46,7 @@ services:
     container_name: mongo_db
     restart: always
     ports:
-      - 21017:21017
+      - 27017:27017
     environment:
       # @TODO: Move this to env variables / secrets
       MONGO_INITDB_ROOT_USERNAME: root
