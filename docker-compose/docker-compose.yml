@@ -46,7 +46,7 @@ services:
       retries: 3
 
   rss_scraper:
-     image: scraper_image
+     image: ghcr.io/oth-datapipeline/scraping-scripts:develop
      hostname: rss_scraper
      container_name: rss_scraper
      networks:
