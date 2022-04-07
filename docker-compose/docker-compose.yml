@@ -73,6 +73,11 @@ services:
       # @TODO: Move this to env variables / secrets
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    entrypoint:
+     - /bin/sh
+     - -c
+     - mongorestore --archive --gzip < /home/hsp/dump.gz
+
 
   mongo-express:
     # Web-based MongoDB admin interface written with Node.js, Express and Bootstrap3

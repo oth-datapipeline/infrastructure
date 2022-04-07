@@ -29,3 +29,10 @@ kafka-topics --bootstrap-server broker:9092 --create --topic <name-of-topic>
 To manage MongoDB, we use Mongo Express, web-based MongoDB admin interface. 
 Once your docker-compose service stack is up and running, you can use Mongo Express' UI.
 Go to the browser of your choice and enter `http://localhost:8081/`. Et voila, there is your admin UI.
+
+## Crontabs
+
+```
+98 1 * * * *    root    docker-compose exec -T mongo mongodump --archive --gzip --db data > /home/hsp/dump.gz
+99 2 */12 * * * root    docker restart rss_scraper
+```
