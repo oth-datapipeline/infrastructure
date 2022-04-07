@@ -62,11 +62,13 @@ services:
         python3 src/data_collection.py --config=config.json "rss" --base_url=https://blog.feedspot.com/world_news_rss_feeds/
 
   mongo:
-    image: mongo
+    image: mongo:4.4.13
     container_name: mongo_db
     restart: always
     ports:
       - 27017:27017
+    networks:
+     - docker_kafka
     environment:
       # @TODO: Move this to env variables / secrets
       MONGO_INITDB_ROOT_USERNAME: root
@@ -80,6 +82,8 @@ services:
     restart: always
     ports:
       - 8081:8081
+    networks:
+     - docker_kafka
     environment:
       # @TODO: Move this to env variables / secrets
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
