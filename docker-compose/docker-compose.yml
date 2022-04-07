@@ -64,6 +64,7 @@ services:
   mongo:
     image: mongo:4.4.13
     container_name: mongo
+    hostname: mongo
     restart: always
     ports:
       - 27017:27017
@@ -73,10 +74,6 @@ services:
       # @TODO: Move this to env variables / secrets
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-    entrypoint:
-     - /bin/sh
-     - -c
-     - mongorestore --archive --gzip < /home/hsp/dump.gz
 
 
   mongo-express:
@@ -84,6 +81,7 @@ services:
     # https://github.com/mongo-express/mongo-express
     image: mongo-express
     container_name: mongo_express
+    hostname: mongo_express
     restart: always
     ports:
       - 8081:8081
