@@ -1,14 +1,18 @@
 # infrastructure
 Repository for managing respective infrastructural elements such as database(s), message broker, etc.
 
-## necessary folder structure
+## Project structure
 .
-├── .github/                           github related stuff such as github actions
-├── zookeper/                          mount folder for zookeeper backups
+├── .github/                            github related stuff, i.e. workflows
+├── zookeper/                           mount folder for zookeeper backups
 │   ├── data/ 
 │   ├── logs/
-├── kafka/	                       mount folder for kafka backups
+├── kafka                               mount folder for kafka backups
 │   ├── broker_data/
-├── mongodb/                           mount folder for mongodb backups
-│   ├── data/                          
-├── docker-compose                     docker compose stuff and readme
+├── mongodb/                            mount folder for mongodb backups
+│   ├── data/
+├── docker-compose                      docker compose and related readme
+
+## Getting started
+This repository contains the dockerization and its runnable setup of the `oth-datapipeline` scraper, zookeeper, kafka and mongodb (and its UI mongo-express).
+To run it, follow the instructions and cues in [docker-compose/README.md](docker-compose/README.md).
