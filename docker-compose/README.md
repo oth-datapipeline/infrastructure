@@ -32,7 +32,8 @@ Go to the browser of your choice and enter `http://localhost:8081/`. Et voila, t
 
 ## Crontabs
 
-```
-98 1 * * * *    root    docker-compose exec -T mongo mongodump --archive --gzip --db data > /home/hsp/dump.gz
+Add cron job to the VMs crontab via `sudo nano /etc/crontab`.
+```sh
+# Scape RSS feeds every 12 hours.
 99 2 */12 * * * root    docker restart rss_scraper
 ```

@@ -1,6 +1,11 @@
 # Dotfiles that don't belong in the repo
 .DS_Store
 
+# Do not commit data from MongoDB, Zookeeper or Kafka
+mongodb/
+kafka/
+zookeeper/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
