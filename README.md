@@ -4,11 +4,8 @@ Repository for managing respective infrastructural elements such as database(s),
 ## Project structure
 .
 ├── .github/                            github related stuff, i.e. workflows
-├── zookeper/                           mount folder for zookeeper backups
-│   ├── data/ 
-│   ├── logs/
-├── kafka                               mount folder for kafka backups
-│   ├── broker_data/
+├── zookeper/                           folder for zookeeper, i.e. backups
+├── kafka                               folder for kafka, i.e. backups
 ├── mongodb/                            mount folder for mongodb backups
 │   ├── data/
 ├── docker-compose                      docker compose and related readme
