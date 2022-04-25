@@ -6,6 +6,10 @@ mongodb/
 kafka/
 zookeeper/
 
+# Do not commit data from consumers or producers
+producers/
+consumers/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
