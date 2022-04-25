@@ -8,6 +8,8 @@ services:
     hostname: zookeeper
     ports:
       - 2181:2181
+    networks:
+      - swarm_network 
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -36,10 +38,9 @@ services:
     ports:
       - 27017:27017
     networks:
-     - swarm_network
-    # Mounting volume to save data on host machine
+      - swarm_network
     volumes:
-     - ../mongodb/data:/data/db
+      - ../mongodb/data:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -57,11 +58,11 @@ services:
     restart: always
     depends_on:
      mongo:
-       condition: service_healthy
+        condition: service_healthy
     ports:
       - 8081:8081
     networks:
-     - swarm_network
+      - swarm_network
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -72,7 +73,9 @@ services:
     hostname: rss_scraper
     container_name: rss_scraper
     networks:
-    - docker_kafka
+      - swarm_network
+    volumes: 
+      - ../producers/logs:/producers/logs
     depends_on:
       kafka:
         condition: service_healthy
@@ -87,11 +90,11 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     entrypoint:
-    - bash
-    - -c
-    - |
-      echo 'Executing scraper for rss...'
-      python3 src/data_collection.py --config=config.json "rss" --base_url=https://blog.feedspot.com/world_news_rss_feeds/
+      - bash
+      - -c
+      - |
+        echo 'Executing scraper for rss...'
+        python3 src/data_collection.py --config=config.json "rss" --base_url=https://blog.feedspot.com/world_news_rss_feeds/
 
 networks:
   swarm_network:
