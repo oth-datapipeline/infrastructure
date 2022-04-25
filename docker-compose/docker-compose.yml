@@ -52,9 +52,13 @@ services:
      container_name: rss_scraper
      networks:
       - docker_kafka
+     volumes: 
+      - ../producers/logs:/producers/logs
      depends_on:
        broker:
         condition: service_healthy
+     env_file:
+      - rss_scraper.env
      entrypoint:
       - bash
       - -c
