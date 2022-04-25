@@ -57,14 +57,8 @@ services:
      depends_on:
        broker:
         condition: service_healthy
-     environment:
-       REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID}
-       REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET}
-       TWITTER_CONSUMER_KEY: ${TWITTER_CONSUMER_KEY}
-       TWITTER_CONSUMER_SECRET: ${TWITTER_CONSUMER_SECRET}
-       TWITTER_BEARER_TOKEN: ${TWITTER_BEARER_TOKEN}
-       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+     env_file:
+      - rss_scraper.env
      entrypoint:
       - bash
       - -c
