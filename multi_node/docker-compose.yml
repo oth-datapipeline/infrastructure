@@ -4,8 +4,8 @@ version: '3.2'
 services:
   zookeeper:
     image: wurstmeister/zookeeper
-    container_name: zookeeper
-    hostname: zookeeper
+    container_name: zookeeper_swarm
+    hostname: zookeeper_swarm
     ports:
       - 2181:2181
     networks:
@@ -13,8 +13,8 @@ services:
 
   kafka:
     image: wurstmeister/kafka:latest
-    container_name: kafka
-    hostname: kafka
+    container_name: kafka_swarm
+    hostname: kafka_swarm
     ports:
       - target: 9094
         published: 9094
@@ -32,8 +32,8 @@ services:
 
   mongo:
     image: mongo:4.4.13
-    container_name: mongo
-    hostname: mongo
+    container_name: mongo_swarm
+    hostname: mongo_swarm
     restart: always
     ports:
       - 27017:27017
@@ -53,8 +53,8 @@ services:
 
   mongo-express:
     image: mongo-express
-    container_name: mongo_express
-    hostname: mongo_express
+    container_name: mongo_express_swarm
+    hostname: mongo_express_swarm
     restart: always
     depends_on:
      mongo:
@@ -70,8 +70,8 @@ services:
 
   rss_scraper:
     image: ghcr.io/oth-datapipeline/scraping-scripts:develop
-    hostname: rss_scraper
-    container_name: rss_scraper
+    hostname: rss_scraper_swarm
+    container_name: rss_scraper_swarm
     networks:
       - swarm_network
     volumes: 
@@ -81,14 +81,8 @@ services:
         condition: service_healthy
       mongo:
         condition: service_healthy
-    environment:
-      REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID}
-      REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET}
-      TWITTER_CONSUMER_KEY: ${TWITTER_CONSUMER_KEY}
-      TWITTER_CONSUMER_SECRET: ${TWITTER_CONSUMER_SECRET}
-      TWITTER_BEARER_TOKEN: ${TWITTER_BEARER_TOKEN}
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    env_file:
+      rss_scraper.env
     entrypoint:
       - bash
       - -c
