@@ -4,17 +4,17 @@ version: '3.2'
 services:
   zookeeper:
     image: wurstmeister/zookeeper
-    container_name: zookeeper_swarm
-    hostname: zookeeper_swarm
+    container_name: zookeeper
+    hostname: zookeeper
     ports:
       - 2181:2181
     networks:
-      - swarm_network 
+      - swarm_network
 
   kafka:
     image: wurstmeister/kafka:latest
-    container_name: kafka_swarm
-    hostname: kafka_swarm
+    container_name: broker
+    hostname: broker
     ports:
       - target: 9094
         published: 9094
@@ -32,8 +32,8 @@ services:
 
   mongo:
     image: mongo:4.4.13
-    container_name: mongo_swarm
-    hostname: mongo_swarm
+    container_name: mongo
+    hostname: mongo
     restart: always
     ports:
       - 27017:27017
@@ -44,21 +44,12 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
 
   mongo-express:
     image: mongo-express
-    container_name: mongo_express_swarm
-    hostname: mongo_express_swarm
+    container_name: mongo_express
+    hostname: mongo_express
     restart: always
-    depends_on:
-     mongo:
-        condition: service_healthy
     ports:
       - 8081:8081
     networks:
@@ -70,17 +61,12 @@ services:
 
   rss_scraper:
     image: ghcr.io/oth-datapipeline/scraping-scripts:develop
-    hostname: rss_scraper_swarm
-    container_name: rss_scraper_swarm
+    hostname: rss_scraper
+    container_name: rss_scraper
     networks:
       - swarm_network
-    volumes: 
+    volumes:
       - ../producers/logs:/producers/logs
-    depends_on:
-      kafka:
-        condition: service_healthy
-      mongo:
-        condition: service_healthy
     env_file:
       rss_scraper.env
     entrypoint:
