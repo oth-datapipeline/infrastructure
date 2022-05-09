@@ -66,6 +66,26 @@ services:
         echo 'Executing scraper for rss...'
         python3 src/data_collection.py --config=config.json "rss" --base_url=https://blog.feedspot.com/world_news_rss_feeds/
 
+  twitter_scraper:
+     image: ghcr.io/oth-datapipeline/scraping-scripts:develop
+     hostname: twitter_scraper
+     container_name: twitter_scraper
+     networks:
+      - docker_kafka
+     volumes: 
+      - ../producers/logs:/producers/logs
+     depends_on:
+       broker:
+        condition: service_healthy
+     env_file:
+      - twitter_scraper.env
+     entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Executing scraper for twitter...'
+        python3 src/data_collection.py --config=config.json "twitter"
+
   mongo:
     image: mongo:4.4.13
     container_name: mongo
