@@ -42,9 +42,9 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     healthcheck:
       test: kafka-topics --bootstrap-server broker:29092 --list
-      interval: 30s
+      interval: 45s
       timeout: 10s
-      retries: 3
+      retries: 8
 
   rss_scraper:
      image: ghcr.io/oth-datapipeline/scraping-scripts:develop
@@ -58,13 +58,33 @@ services:
        broker:
         condition: service_healthy
      env_file:
-      - rss_scraper.env
+      - .env
      entrypoint:
       - bash
       - -c
       - |
-        echo 'Executing scraper for rss...'
+        echo "[$$(date +'%Y-%m-%d %T')] Executing scraper for rss."
         python3 src/data_collection.py --config=config.json "rss" --base_url=https://blog.feedspot.com/world_news_rss_feeds/
+
+  reddit_scraper:
+     image: ghcr.io/oth-datapipeline/scraping-scripts:develop
+     hostname: reddit_scraper
+     container_name: reddit_scraper
+     networks:
+      - docker_kafka
+     volumes: 
+      - ../producers/logs:/producers/logs
+     depends_on:
+       broker:
+        condition: service_healthy
+     env_file:
+      - .env
+     entrypoint:
+      - bash
+      - -c
+      - |
+        echo "[$$(date +'%Y-%m-%d %T')] Executing scraper for reddit."
+        python3 src/data_collection.py --config=config.json "reddit"
 
   twitter_scraper:
      image: ghcr.io/oth-datapipeline/scraping-scripts:develop
@@ -78,13 +98,79 @@ services:
        broker:
         condition: service_healthy
      env_file:
-      - twitter_scraper.env
+      - .env
      entrypoint:
       - bash
       - -c
       - |
-        echo 'Executing scraper for twitter...'
+        echo "[$$(date +'%Y-%m-%d %T')] Executing scraper for twitter."
         python3 src/data_collection.py --config=config.json "twitter"
+
+  rss_ingestion:
+     image: ghcr.io/oth-datapipeline/ingestion-scripts:develop
+     hostname: rss_ingestion
+     container_name: rss_ingestion
+     networks:
+      - docker_kafka
+     volumes: 
+      - ../consumers/logs:/consumers/logs
+     depends_on:
+       broker:
+        condition: service_healthy
+     restart: always
+     env_file:
+      - .env
+     entrypoint:
+      - bash
+      - -c
+      - |
+        echo "[$$(date +'%Y-%m-%d %T')] Starting RSS ingestion pipeline."
+        cd src/
+        python3 -m faust -A rss_consumer worker -l info
+
+  reddit_ingestion:
+     image: ghcr.io/oth-datapipeline/ingestion-scripts:develop
+     hostname: reddit_ingestion
+     container_name: reddit_ingestion
+     networks:
+      - docker_kafka
+     volumes: 
+      - ../consumers/logs:/consumers/logs
+     depends_on:
+       broker:
+        condition: service_healthy
+     restart: always
+     env_file:
+      - .env
+     entrypoint:
+      - bash
+      - -c
+      - |
+        echo "[$$(date +'%Y-%m-%d %T')] Starting Reddit ingestion pipeline."
+        cd src/
+        python3 -m faust -A reddit_consumer worker -l info
+
+  twitter_ingestion:
+     image: ghcr.io/oth-datapipeline/ingestion-scripts:develop
+     hostname: twitter_ingestion
+     container_name: twitter_ingestion
+     networks:
+      - docker_kafka
+     volumes: 
+      - ../consumers/logs:/consumers/logs
+     depends_on:
+       broker:
+        condition: service_healthy
+     restart: always
+     env_file:
+      - .env
+     entrypoint:
+      - bash
+      - -c
+      - |
+        echo "[$$(date +'%Y-%m-%d %T')] Starting Twitter ingestion pipeline."
+        cd src/
+        python3 -m faust -A twitter_consumer worker -l info
 
   mongo:
     image: mongo:4.4.13
@@ -98,10 +184,8 @@ services:
     # Mounting volume to save data on host machine
     volumes:
      - ../mongodb/data:/data/db
-    environment:
-      # @TODO: Move this to env variables / secrets
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+    env_file:
+      - .env
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
       interval: 10s
@@ -110,8 +194,6 @@ services:
       start_period: 30s
 
   mongo-express:
-    # Web-based MongoDB admin interface written with Node.js, Express and Bootstrap3
-    # https://github.com/mongo-express/mongo-express
     image: mongo-express
     container_name: mongo_express
     hostname: mongo_express
@@ -123,9 +205,6 @@ services:
       - 8081:8081
     networks:
      - docker_kafka
-    environment:
-      # @TODO: Move this to env variables / secrets
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+    env_file:
+      - .env
 
