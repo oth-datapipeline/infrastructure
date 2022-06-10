@@ -4,31 +4,17 @@ of a comment), fetch the information via the PRAW API and recalculate the field 
 on author.created and insert_date / comment.created
 """
 import datetime
-import sys
 import praw
-from pymongo import MongoClient
-from constants import MONGODB_HOST, MONGODB_PORT, MONGODB_USERNAME, MONGODB_PASSWORD, \
-                      REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT
+from utils import read_args, get_database
+from constants import REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT
 
 if __name__ == '__main__':
-    if len(sys.argv) not in [1, 2] or \
-        ( len(sys.argv) == 2 and sys.argv[1] != '--remote' ):
-        print('Usage of script: ./reddit_member_since.py [--remote]')
+    remote = read_args(__file__)
+    database = get_database(remote)
+    collection = database['reddit.posts']
 
     # Set up PRAW API client
     api = praw.Reddit(client_id=REDDIT_CLIENT_ID, client_secret=REDDIT_CLIENT_SECRET, user_agent=REDDIT_USER_AGENT)
-    
-    remote = False
-    if len(sys.argv) == 2:
-        remote = True
-
-    if remote:
-        client = MongoClient(MONGODB_HOST, MONGODB_PORT, username=MONGODB_USERNAME, password=MONGODB_PASSWORD)
-    else:
-        client = MongoClient('localhost', MONGODB_PORT)
-    
-    database = client['data']
-    collection = database['reddit.posts']
 
     authors = collection.aggregate([
         {

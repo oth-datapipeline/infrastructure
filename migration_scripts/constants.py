@@ -1,7 +1,8 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'docker-compose', '.env'))
+load_dotenv(dotenv_path=dotenv_path)
 
 # Constants for environment variables
 REDDIT_CLIENT_ID = os.environ['REDDIT_CLIENT_ID']

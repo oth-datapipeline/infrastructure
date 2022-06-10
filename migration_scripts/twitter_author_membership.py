@@ -3,31 +3,17 @@ If the field author.created_at doesn't exist, fetch the information via the Twee
 the field member_since based on author.created and insert_date / comment.created and add both
 fields to the author subdocument
 """
-import sys
 import tweepy
-from pymongo import MongoClient
-from constants import MONGODB_HOST, MONGODB_PORT, MONGODB_USERNAME, MONGODB_PASSWORD, \
-                      TWITTER_BEARER_TOKEN
+from utils import read_args, get_database
+from constants import TWITTER_BEARER_TOKEN
 
 if __name__ == '__main__':
-    if len(sys.argv) not in [1, 2] or \
-        ( len(sys.argv) == 2 and sys.argv[1] != '--remote' ):
-        print('Usage of script: ./twitter_author_membership.py [--remote]')
+    remote = read_args(__file__)
+    database = get_database(remote)
+    collection = database['twitter.tweets']
 
     # Set up PRAW API client
     api = tweepy.Client(bearer_token=TWITTER_BEARER_TOKEN)
-    
-    remote = False
-    if len(sys.argv) == 2:
-        remote = True
-
-    if remote:
-        client = MongoClient(MONGODB_HOST, MONGODB_PORT, username=MONGODB_USERNAME, password=MONGODB_PASSWORD)
-    else:
-        client = MongoClient('localhost', MONGODB_PORT)
-    
-    database = client['data']
-    collection = database['twitter.tweets']
 
     results = collection.aggregate([
         {

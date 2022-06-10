@@ -3,25 +3,11 @@ If the field published is of type String, then cast it to type ISODate (datetime
 to standardize the data
 """
 import datetime
-import sys
-from pymongo import MongoClient
-from constants import MONGODB_HOST, MONGODB_PORT, MONGODB_USERNAME, MONGODB_PASSWORD
+from utils import read_args, get_database
 
 if __name__ == '__main__':
-    if len(sys.argv) not in [1, 2] or \
-        ( len(sys.argv) == 2 and sys.argv[1] != '--remote' ):
-        print('Usage of script: ./rss_published_string.py [--remote]')
-    
-    remote = False
-    if len(sys.argv) == 2:
-        remote = True
-
-    if remote:
-        client = MongoClient(MONGODB_HOST, MONGODB_PORT, username=MONGODB_USERNAME, password=MONGODB_PASSWORD)
-    else:
-        client = MongoClient('localhost', MONGODB_PORT)
-    
-    database = client['data']
+    remote = read_args(__file__)
+    database = get_database(remote)
     collection = database['rss.articles']
 
     results = collection.aggregate([
