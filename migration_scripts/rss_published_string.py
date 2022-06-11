@@ -10,7 +10,7 @@ if __name__ == '__main__':
     database = get_database(remote)
     collection = database['rss.articles']
 
-    results = collection.aggregate([
+    articles = collection.aggregate([
         {
             '$project': {
                 'published': 1,
@@ -32,11 +32,11 @@ if __name__ == '__main__':
     ])
 
     count = 0
-    for result in results:
-        timezone_string = result['published'].split(" ")[-1]
+    for article in articles:
+        timezone_string = article['published'].split(" ")[-1]
         timezone_char = "%z" if any(c.isdigit() for c in timezone_string) else "%Z"
-        published_date = datetime.datetime.strptime(result['published'], f"%a, %d %b %Y %H:%M:%S {timezone_char}")
-        ret = collection.update_one({'_id': result['_id']}, {'$set': {'published': published_date}})
+        published_date = datetime.datetime.strptime(article['published'], f"%a, %d %b %Y %H:%M:%S {timezone_char}")
+        ret = collection.update_one({'_id': article['_id']}, {'$set': {'published': published_date}})
         if ret.modified_count != 1:
             print('Error in modification of data in database occurred')
             break
