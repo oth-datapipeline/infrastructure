@@ -12,7 +12,7 @@ if __name__ == '__main__':
     database = get_database(remote)
     collection = database['twitter.tweets']
 
-    # Set up PRAW API client
+    # Set up tweepy client
     api = tweepy.Client(bearer_token=TWITTER_BEARER_TOKEN)
 
     tweets = collection.aggregate([
