@@ -1,7 +1,7 @@
 """Batch script for data migration on data source Twitter
 If the field author.created_at doesn't exist, fetch the information via the Tweepy API, calculate
-the field member_since based on author.created and insert_date / comment.created and add both
-fields to the author subdocument
+the field member_since based on author.created_at and the field created_at for the tweet, and add
+both fields to the author subdocument
 """
 import tweepy
 from utils import read_args, get_database
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     # Set up PRAW API client
     api = tweepy.Client(bearer_token=TWITTER_BEARER_TOKEN)
 
-    results = collection.aggregate([
+    tweets = collection.aggregate([
         {
             '$match': {
                 'author.created_at': {
@@ -33,12 +33,12 @@ if __name__ == '__main__':
     ])
 
     count = 0
-    for result in results:
+    for tweet in tweets:
         user_fields = ['created_at']
-        user = api.get_user(username=result['author']['username'], user_fields=user_fields)
+        user = api.get_user(username=tweet['author']['username'], user_fields=user_fields)
         author_created = user.data.created_at
-        member_since = (result['created_at'] - author_created.replace(tzinfo=None)).total_seconds()
-        ret = collection.update_one({'_id': result['_id']}, {'$set': {'author.created_at': author_created, 'author.member_since': member_since}})
+        member_since = (tweet['created_at'] - author_created.replace(tzinfo=None)).total_seconds()
+        ret = collection.update_one({'_id': tweet['_id']}, {'$set': {'author.created_at': author_created, 'author.member_since': member_since}})
         if ret.modified_count != 1:
             print('Error in modification of data in database occurred')
             break
