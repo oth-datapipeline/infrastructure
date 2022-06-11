@@ -16,7 +16,7 @@ if __name__ == '__main__':
     # Set up PRAW API client
     api = praw.Reddit(client_id=REDDIT_CLIENT_ID, client_secret=REDDIT_CLIENT_SECRET, user_agent=REDDIT_USER_AGENT)
 
-    authors = collection.aggregate([
+    post_authors = collection.aggregate([
         {
             '$match': {
                 'author.created': -1
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     ])
 
     all_authors = set()
-    for author in authors:
+    for author in post_authors:
         all_authors.add(author['_id'])
     for author in comment_authors:
         all_authors.add(author['_id'])
@@ -65,7 +65,7 @@ if __name__ == '__main__':
             continue
 
         # Modifying the creation date of the author of a post
-        results = collection.aggregate([
+        posts = collection.aggregate([
             {
                 '$match': {
                     'author.name': author_name, 
@@ -80,9 +80,9 @@ if __name__ == '__main__':
             }
         ])
 
-        for result in results:
-            member_since = (result['created'] - author_created).total_seconds()
-            ret = collection.update_one({'_id': result['_id']}, {'$set': {'author.created': author_created, 'author.member_since': member_since}})
+        for post in posts:
+            member_since = (post['created'] - author_created).total_seconds()
+            ret = collection.update_one({'_id': post['_id']}, {'$set': {'author.created': author_created, 'author.member_since': member_since}})
             if ret.modified_count != 1:
                 print('Error in modification of data in database occurred')
                 break
@@ -91,7 +91,7 @@ if __name__ == '__main__':
                 print(f'{count} document(s) sucessfully modified')
 
         # Modifying the creation date of the author of a comment
-        results = collection.aggregate([
+        posts_with_comment_index = collection.aggregate([
             {
                 '$unwind': {
                     'path': '$comments', 
@@ -112,9 +112,10 @@ if __name__ == '__main__':
             }
         ])
 
-        for result in results:
-            member_since = (result['comments.created'] - author_created).total_seconds()
-            ret = collection.update_one({'_id': result['_id']}, {'$set': {f'comments.{result["index"]}.author.created': author_created, f'comments.{result["index"]}.author.member_since': member_since}})
+        for post_with_comment_index in posts_with_comment_index:
+            member_since = (post_with_comment_index['comments.created'] - author_created).total_seconds()
+            ret = collection.update_one({'_id': post_with_comment_index['_id']},
+                {'$set': {f'comments.{post_with_comment_index["index"]}.author.created': author_created, f'comments.{post_with_comment_index["index"]}.author.member_since': member_since}})
             if ret.modified_count != 1:
                 print('Error in modification of data in database occurred')
                 break
