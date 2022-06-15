@@ -1,16 +1,37 @@
 """Generic batch script for data migration on all three data sources
 If the field sentiment doesn't exist, add a sentiment analysis of the field text to the article, post or tweet.
-! The same script can be used for all three data sources, as only line 11 to 13 changes !
 """
+import argparse
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from utils import read_args, get_database
+from utils import get_database
+
+def get_arguments():
+    """Get script arguments from the argument parser
+    """
+    parser = argparse.ArgumentParser(
+        description='Script for data migration on sentiment analysis')
+    parser.add_argument('--remote', action='store_true', default=False, help='Data migration on remote database (default: local)')
+    parser.add_argument('--limit', type=int, default=10, help='Limit on modifying entries (default: 10)')
+    subparsers = parser.add_subparsers(dest='data_source', required=True)
+    subparsers.add_parser('rss', help='Reload sentiment analysis on data from RSS feeds')
+    subparsers.add_parser('reddit', help='Reload sentiment analysis on data from reddit')
+    subparsers.add_parser('twitter', help='Reload sentiment analysis on data from twitter')
+    return parser.parse_args()
 
 if __name__ == '__main__':
-    remote = read_args(__file__)
-    database = get_database(remote)
-    # collection = database['rss.articles']
-    # collection = database['reddit.posts']
-    collection = database['twitter.tweets']
+    args = get_arguments()
+    print('args:', args)
+
+    database = get_database(args.remote)
+    
+    if args.data_source == 'rss':
+        collection_name = 'rss.articles'
+    if args.data_source == 'reddit':
+        collection_name = 'reddit.posts'
+    if args.data_source == 'reddit':
+        collection_name = 'twitter.tweets'
+
+    collection = database[collection_name]
 
     # Set up sentiment analyzer
     analyzer = SentimentIntensityAnalyzer()
@@ -27,7 +48,7 @@ if __name__ == '__main__':
                 'text': 1
             }
         }, {
-            '$limit': 10
+            '$limit': args.limit
         }
     ])
 

@@ -9,8 +9,8 @@ from utils import read_args, get_database
 from constants import REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT
 
 if __name__ == '__main__':
-    remote = read_args(__file__)
-    database = get_database(remote)
+    args = read_args()
+    database = get_database(args.remote)
     collection = database['reddit.posts']
 
     # Set up PRAW API client
@@ -26,7 +26,7 @@ if __name__ == '__main__':
                 '_id': '$author.name'
             }
         }, {
-            '$limit': 10
+            '$limit': args.limit
         }
     ])
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
                 '_id': '$comments.author.name'
             }
         }, {
-            '$limit': 10
+            '$limit': args.limit
         }
     ])
 
@@ -75,8 +75,6 @@ if __name__ == '__main__':
                 '$project': {
                     'created': 1
                 }
-            }, {
-                '$limit': 100
             }
         ])
 
@@ -107,8 +105,6 @@ if __name__ == '__main__':
                     'index': 1, 
                     'comments.created': 1
                 }
-            }, {
-                '$limit': 100
             }
         ])
 

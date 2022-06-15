@@ -6,8 +6,8 @@ import datetime
 from utils import read_args, get_database
 
 if __name__ == '__main__':
-    remote = read_args(__file__)
-    database = get_database(remote)
+    args = read_args()
+    database = get_database(args.remote)
     collection = database['rss.articles']
 
     articles = collection.aggregate([
@@ -27,7 +27,7 @@ if __name__ == '__main__':
                 'published': 1
             }
         }, {
-            '$limit': 100
+            '$limit': args.limit
         }
     ])
 

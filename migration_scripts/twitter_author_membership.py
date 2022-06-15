@@ -8,8 +8,8 @@ from utils import read_args, get_database
 from constants import TWITTER_BEARER_TOKEN
 
 if __name__ == '__main__':
-    remote = read_args(__file__)
-    database = get_database(remote)
+    args = read_args()
+    database = get_database(args.remote)
     collection = database['twitter.tweets']
 
     # Set up tweepy client
@@ -28,7 +28,7 @@ if __name__ == '__main__':
                 'created_at': 1
             }
         }, {
-            '$limit': 10
+            '$limit': args.limit
         }
     ])
 
