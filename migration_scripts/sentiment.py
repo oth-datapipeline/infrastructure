@@ -2,6 +2,7 @@
 If the field sentiment doesn't exist, add a sentiment analysis of the field text to the article, post or tweet.
 """
 import argparse
+import sys
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from utils import get_database
 
@@ -14,7 +15,8 @@ def get_arguments():
     parser.add_argument('--limit', type=int, default=10, help='Limit on modifying entries (default: 10)')
     subparsers = parser.add_subparsers(dest='data_source', required=True)
     subparsers.add_parser('rss', help='Reload sentiment analysis on data from RSS feeds')
-    subparsers.add_parser('reddit', help='Reload sentiment analysis on data from reddit')
+    reddit = subparsers.add_parser('reddit', help='Reload sentiment analysis on data from reddit')
+    reddit.add_argument('--comments', action='store_true', default=False, help='Additionally add sentiment to comments (default: False)')
     subparsers.add_parser('twitter', help='Reload sentiment analysis on data from twitter')
     return parser.parse_args()
 
@@ -26,17 +28,20 @@ if __name__ == '__main__':
     
     if args.data_source == 'rss':
         collection_name = 'rss.articles'
+        fieldname_to_be_analyzed = 'title'
     if args.data_source == 'reddit':
         collection_name = 'reddit.posts'
-    if args.data_source == 'reddit':
+        fieldname_to_be_analyzed = 'title'
+    if args.data_source == 'twitter':
         collection_name = 'twitter.tweets'
+        fieldname_to_be_analyzed = 'text'
 
     collection = database[collection_name]
 
     # Set up sentiment analyzer
     analyzer = SentimentIntensityAnalyzer()
 
-    tweets = collection.aggregate([
+    results = collection.aggregate([
         {
             '$match': {
                 'sentiment': {
@@ -45,7 +50,7 @@ if __name__ == '__main__':
             }
         }, {
             '$project': {
-                'text': 1
+                fieldname_to_be_analyzed: 1
             }
         }, {
             '$limit': args.limit
@@ -53,19 +58,61 @@ if __name__ == '__main__':
     ])
 
     count = 0
-    for tweet in tweets:
-        scores = analyzer.polarity_scores(tweet.text)
+    for result in results:
+        scores = analyzer.polarity_scores(result[fieldname_to_be_analyzed])
         sentiment = {
             'negative': scores['neg'],
             'neutral': scores['neu'],
             'positive': scores['pos'],
             'compound': scores['compound']
         }
-        ret = collection.update_one({'_id': tweet['_id']}, {'$set': {'sentiment': sentiment}})
+        ret = collection.update_one({'_id': result['_id']}, {'$set': {'sentiment': sentiment}})
         if ret.modified_count != 1:
             print('Error in modification of data in database occurred')
             break
         count += 1
         if count in [1, 10] or count % 100 == 0:
             print(f'{count} document(s) sucessfully modified')
+
+    if args.comments:
+        # Adding sentiment analysis to reddit comments
+        comments = collection.aggregate([
+            {
+                '$unwind': {
+                    'path': '$comments', 
+                    'includeArrayIndex': 'index'
+                }
+            }, {
+                '$match': {
+                    'comments.sentiment': {
+                        '$exists': False
+                    }
+                }
+            }, {
+                '$project': {
+                    'comments.text': 1, 
+                    'index': 1
+                }
+            }, {
+                '$limit': args.limit
+            }
+        ])
+
+        for comment in comments:
+            scores = analyzer.polarity_scores(comment['comments']['text'])
+            sentiment = {
+                'negative': scores['neg'],
+                'neutral': scores['neu'],
+                'positive': scores['pos'],
+                'compound': scores['compound']
+            }
+            ret = collection.update_one({'_id': result['_id']}, {'$set': {f'comments.{comment["index"]}.sentiment': sentiment}})
+            if ret.modified_count != 1:
+                print('Error in modification of data in database occurred')
+                break
+            count += 1
+            if count in [1, 10] or count % 100 == 0:
+                print(f'{count} document(s) sucessfully modified')
+
+    print(f'Result: {count} document(s) sucessfully modified')
     
