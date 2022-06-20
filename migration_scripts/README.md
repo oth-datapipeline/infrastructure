@@ -1,6 +1,6 @@
 # Data migration, formatting, reloading, ...
 
-This folder contains a collection of various python scripts, which don't depend from each other. They all can be runned on their own without interfering with the remaining data pipeline. The migration scripts are not part of the data pipeline, but mitigate the data on the MongoDB database server post hoc.  
+This folder contains a collection of various python scripts, which don't depend on each other. They all can be run on their own without interfering with the remaining data pipeline. The migration scripts are not part of the data pipeline, but mitigate the data on the MongoDB database server post hoc.  
 
 For help to run the scripts, please use the commandline help functionality `-h` / `--help`.
 
