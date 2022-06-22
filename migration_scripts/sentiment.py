@@ -2,7 +2,6 @@
 If the field sentiment doesn't exist, add a sentiment analysis of the field text to the article, post or tweet.
 """
 import argparse
-import sys
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from utils import get_database
 
@@ -74,7 +73,7 @@ if __name__ == '__main__':
         if count in [1, 10] or count % 100 == 0:
             print(f'{count} document(s) sucessfully modified')
 
-    if args.comments:
+    if args.data_source == 'reddit' and args.comments:
         # Adding sentiment analysis to reddit comments
         comments = collection.aggregate([
             {
