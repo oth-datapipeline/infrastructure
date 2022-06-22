@@ -59,10 +59,10 @@ if __name__ == '__main__':
                     ret = collection.update_one({'_id': tweet_id}, {'$set': {'author.created_at': author_created, 'author.member_since': member_since}})
                     if ret.modified_count != 1:
                         print('Error in modification of data in database occurred')
-                        print(f'Result: {count} document(s) sucessfully modified')
+                        print(f'Result: {count} document(s) successfully modified')
                         sys.exit(0)
                     count += 1
                     if count in [1, 10] or count % 100 == 0:
-                        print(f'{count} document(s) sucessfully modified')
+                        print(f'{count} document(s) successfully modified')
 
-    print(f'Result: {count} document(s) sucessfully modified')
+    print(f'Result: {count} document(s) successfully modified')

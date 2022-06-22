@@ -90,7 +90,7 @@ if __name__ == '__main__':
                 break
             count += 1
             if count in [1, 10] or count % 100 == 0:
-                print(f'{count} document(s) sucessfully modified')
+                print(f'{count} document(s) successfully modified')
 
         # Modifying the creation date of the author of a comment
         posts_with_comment_index = collection.aggregate([
@@ -127,6 +127,6 @@ if __name__ == '__main__':
                 break
             count += 1
             if count in [1, 10] or count % 100 == 0:
-                print(f'{count} document(s) sucessfully modified')
+                print(f'{count} document(s) successfully modified')
 
-    print(f'Result: {count} document(s) sucessfully modified')
+    print(f'Result: {count} document(s) successfully modified')

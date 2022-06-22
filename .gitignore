@@ -1,5 +1,6 @@
 # Dotfiles that don't belong in the repo
 .DS_Store
+.vscode
 
 # Do not commit data from MongoDB, Zookeeper or Kafka
 mongodb/

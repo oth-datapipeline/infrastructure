@@ -70,6 +70,6 @@ if __name__ == '__main__':
         
         count += 1
         if count in [1, 10] or count % 100 == 0:
-            print(f'{count} document(s) sucessfully modified')
+            print(f'{count} document(s) successfully modified')
 
-    print(f'Result: {count} document(s) sucessfully modified')
+    print(f'Result: {count} document(s) successfully modified')

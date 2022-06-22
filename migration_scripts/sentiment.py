@@ -71,7 +71,7 @@ if __name__ == '__main__':
             break
         count += 1
         if count in [1, 10] or count % 100 == 0:
-            print(f'{count} document(s) sucessfully modified')
+            print(f'{count} document(s) successfully modified')
 
     if args.data_source == 'reddit' and args.comments:
         # Adding sentiment analysis to reddit comments
@@ -111,7 +111,7 @@ if __name__ == '__main__':
                 break
             count += 1
             if count in [1, 10] or count % 100 == 0:
-                print(f'{count} document(s) sucessfully modified')
+                print(f'{count} document(s) successfully modified')
 
-    print(f'Result: {count} document(s) sucessfully modified')
+    print(f'Result: {count} document(s) successfully modified')
     
