@@ -4,7 +4,7 @@ of a comment), fetch the information via the PRAW API and recalculate the field 
 on author.created and insert_date / comment.created
 """
 import datetime
-import praw
+import praw, prawcore
 from utils import read_args, get_database
 from constants import REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT
 
@@ -59,9 +59,13 @@ if __name__ == '__main__':
         print(f'Fetching the creation date of redditor {author_name}')
         redditor = api.redditor(name=author_name)
         try:
-            author_created = datetime.datetime.fromtimestamp(redditor.created)
-        except AttributeError:
-            print(f'The field created for the redditor {author_name} can\'t be fetched from the PRAW API')
+            try:
+                author_created = datetime.datetime.fromtimestamp(redditor.created)
+            except AttributeError:
+                print(f'The field created for the redditor {author_name} can\'t be fetched from the PRAW API')
+                continue
+        except prawcore.NotFound as e:
+            print('NotFound:', e, f'for redditor {author_name}')
             continue
 
         # Modifying the creation date of the author of a post
@@ -86,7 +90,7 @@ if __name__ == '__main__':
                 break
             count += 1
             if count in [1, 10] or count % 100 == 0:
-                print(f'{count} document(s) sucessfully modified')
+                print(f'{count} document(s) successfully modified')
 
         # Modifying the creation date of the author of a comment
         posts_with_comment_index = collection.aggregate([
@@ -109,14 +113,20 @@ if __name__ == '__main__':
         ])
 
         for post_with_comment_index in posts_with_comment_index:
-            member_since = (post_with_comment_index['comments.created'] - author_created).total_seconds()
+            comment_created = datetime.datetime.strptime(post_with_comment_index['comments']['created'], '%Y-%m-%d %H:%M:%S')
+            member_since = (comment_created - author_created).total_seconds()
             ret = collection.update_one({'_id': post_with_comment_index['_id']},
-                {'$set': {f'comments.{post_with_comment_index["index"]}.author.created': author_created, f'comments.{post_with_comment_index["index"]}.author.member_since': member_since}})
+                {'$set': {f'comments.{post_with_comment_index["index"]}.author.created': author_created,
+                          f'comments.{post_with_comment_index["index"]}.author.member_since': member_since,
+                          f'comments.{post_with_comment_index["index"]}.created': comment_created
+                          }
+                }
+            )
             if ret.modified_count != 1:
                 print('Error in modification of data in database occurred')
                 break
             count += 1
             if count in [1, 10] or count % 100 == 0:
-                print(f'{count} document(s) sucessfully modified')
+                print(f'{count} document(s) successfully modified')
 
-    print(f'Result: {count} document(s) sucessfully modified')
+    print(f'Result: {count} document(s) successfully modified')

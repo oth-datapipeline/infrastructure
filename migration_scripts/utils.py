@@ -14,7 +14,7 @@ def get_database(remote : bool = False) -> pymongo.database.Database:
     if remote:
         client = pymongo.MongoClient(MONGODB_HOST, MONGODB_PORT, username=MONGODB_USERNAME, password=MONGODB_PASSWORD)
     else:
-        client = pymongo.MongoClient('localhost', MONGODB_PORT)
+        client = pymongo.MongoClient('localhost', MONGODB_PORT, username=MONGODB_USERNAME, password=MONGODB_PASSWORD)
     
     database = client['data']
     print('Connecting to database:', database)
