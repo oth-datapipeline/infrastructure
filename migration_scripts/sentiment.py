@@ -105,7 +105,7 @@ if __name__ == '__main__':
                 'positive': scores['pos'],
                 'compound': scores['compound']
             }
-            ret = collection.update_one({'_id': result['_id']}, {'$set': {f'comments.{comment["index"]}.sentiment': sentiment}})
+            ret = collection.update_one({'_id': comment['_id']}, {'$set': {f'comments.{comment["index"]}.sentiment': sentiment}})
             if ret.modified_count != 1:
                 print('Error in modification of data in database occurred')
                 break
